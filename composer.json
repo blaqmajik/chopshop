@@ -1,0 +1,23 @@
+{
+    "name": "blaqmajik/chopshop",
+    "type": "library",
+    "description": "HTML scraper, hooking you up with the best parts in no time",
+    "homepage": "https://github.com/blaqmajik/chopshop",
+    "keywords": ["scraper"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "blaqmajik",
+            "email": "blaqmajik@mail.ee"
+        }
+    ]
+    "require": {
+        "php": ">=5.4.0",
+        "querypath/querypath": "^3.0.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "ChopShop\\": "ChopShop"
+        }
+    }
+}
