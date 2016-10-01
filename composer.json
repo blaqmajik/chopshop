@@ -10,7 +10,7 @@
             "name": "blaqmajik",
             "email": "blaqmajik@mail.ee"
         }
-    ]
+    ],
     "require": {
         "php": ">=5.4.0",
         "querypath/querypath": "^3.0.5"
