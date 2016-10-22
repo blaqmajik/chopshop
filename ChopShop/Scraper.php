@@ -7,7 +7,7 @@ use ChopShop\Exception\MoreThanOneMatchFoundException;
 use ChopShop\Exception\UndefinedFilterException;
 use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Selector;
-use ChopShop\Selector\SelectorParser;
+use ChopShop\Selector\Parser\SelectorParser;
 use QueryPath\DOMQuery;
 
 /**

@@ -1,24 +1,22 @@
 <?php
 
-namespace ChopShop\Selector;
+namespace ChopShop\Selector\Parser;
 
 use ChopShop\Exception\SelectorParserException;
+use ChopShop\Selector\FilterFunctionCall;
+use ChopShop\Selector\Selector;
 
 /**
  * Class SelectorParser
- * @package ChopShop\Selector
+ * @package ChopShop\Selector\Parser
  *
- * Mimics the behavior of npm packages lapwinglabs/x-ray-parse and component/format-parser
+ * Mimics the behavior of npm package lapwinglabs/x-ray-parse
  */
 class SelectorParser
 {
     // blatantly stolen from x-ray-parse
     const REGEX_SELECTOR = '/^([^@]*)(?:@\s*([\w-_:]+))?$/';
     const REGEX_FILTERS = '/\s*\|(?!\=)\s*/';
-
-    // shamelessly borrowed from format-parser
-    const REGEX_FORMAT_SPLIT = '/\s*\|\s*/';
-    const REGEX_FORMAT_ARGUMENTS = '/"([^"]*)"|\'([^\']*)\'|([^\s\t,]+)/';
 
     const ATTRIBUTE_NAME_INNER_HTML = 'html';
 
@@ -72,56 +70,18 @@ class SelectorParser
         }
 
         if (count($filters) > 0) {
-            $parsedFilters = self::parseFormat(implode('|', $filters));
+            $parsedFormats = FormatParser::parse(implode('|', $filters));
 
-            $selector->setFilters($parsedFilters);
+            $filterFunctionCalls = [];
+
+            foreach ($parsedFormats as $parsedFormat) {
+                $filterFunctionCall = new FilterFunctionCall($parsedFormat['name'], $parsedFormat['args']);
+                $filterFunctionCalls[] = $filterFunctionCall;
+            }
+
+            $selector->setFilters($filterFunctionCalls);
         }
 
         return $selector;
-    }
-
-    /**
-     * @param $string
-     * @return array
-     */
-    protected static function parseFormat($string)
-    {
-        $filters = [];
-
-        foreach (preg_split(self::REGEX_FORMAT_SPLIT, $string) as $filter) {
-            $parts = explode(':', $filter);
-            $name = array_shift($parts);
-            $arguments = self::parseArguments(implode(':', $parts));
-
-            $filters[] = new FilterFunctionCall($name, $arguments);
-        }
-
-        return $filters;
-    }
-
-    /**
-     * @param $string
-     * @return array
-     */
-    protected static function parseArguments($string)
-    {
-        $arguments = [];
-        $allMatches = [];
-
-        preg_match_all(self::REGEX_FORMAT_ARGUMENTS, $string, $allMatches);
-
-        // pretty sure there's a much more elegant way to do this, just not today!
-        if (!empty($allMatches)) {
-            array_shift($allMatches);
-
-            foreach ($allMatches as $matches) {
-                if (count($matches) > 0 && !is_null($matches[0]) && $matches[0] !== '') {
-                    $arguments[] = $matches[0];
-                    break;
-                }
-            }
-        }
-
-        return $arguments;
     }
 }

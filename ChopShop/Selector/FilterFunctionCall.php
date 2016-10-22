@@ -11,7 +11,7 @@ class FilterFunctionCall
     /**
      * @var string
      */
-    protected $name = null;
+    protected $name;
 
     /**
      * @var array
@@ -20,10 +20,10 @@ class FilterFunctionCall
 
     /**
      * Filter constructor.
-     * @param null $name
+     * @param string $name
      * @param array $arguments
      */
-    public function __construct($name = null, $arguments = [])
+    public function __construct($name, $arguments = [])
     {
         $this->setName($name);
         $this->setArguments($arguments);
