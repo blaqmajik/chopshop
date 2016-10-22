@@ -15,4 +15,5 @@ matrix:
   fast_finish: true
 
 before_script:
+  - phpenv config-rm xdebug.ini
   - composer install
