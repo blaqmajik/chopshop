@@ -6,15 +6,13 @@ namespace ChopShop\Selector\Parser;
  * Class FormatParser
  * @package ChopShop\Selector\Parser
  *
- * Mimics the behavior of npm package component/format-parser
+ * Mimics the behavior of npm package 'format-parser'
  */
 class FormatParser
 {
     // shamelessly borrowed from format-parser
     const REGEX_FORMAT_SPLIT = '/\s*\|\s*/';
     const REGEX_FORMAT_ARGUMENTS = '/"([^"]*)"|\'([^\']*)\'|([^\s\t,]+)/';
-
-    const ATTRIBUTE_NAME_INNER_HTML = 'html';
 
     /**
      * @param $string

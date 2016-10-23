@@ -2,7 +2,7 @@
 
 namespace ChopShop\Selector\Parser;
 
-use ChopShop\Exception\SelectorParserException;
+use ChopShop\Exception\MalformedSelectorException;
 use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Selector;
 
@@ -10,7 +10,7 @@ use ChopShop\Selector\Selector;
  * Class SelectorParser
  * @package ChopShop\Selector\Parser
  *
- * Mimics the behavior of npm package lapwinglabs/x-ray-parse
+ * Mimics the behavior of npm package 'x-ray-parse'
  */
 class SelectorParser
 {
@@ -23,7 +23,7 @@ class SelectorParser
     /**
      * @param string|array $definition
      * @return Selector
-     * @throws SelectorParserException
+     * @throws MalformedSelectorException
      */
     public static function parse($definition)
     {
@@ -51,10 +51,14 @@ class SelectorParser
         preg_match(self::REGEX_SELECTOR, $definitionWithoutFilters, $matches);
 
         if (!isset($matches[1])) {
-            throw new SelectorParserException('Malformed selector');
+            throw new MalformedSelectorException();
         }
 
-        $selector->setSelector(trim($matches[1]));
+        $selectorString = trim($matches[1]);
+
+        if ($selectorString !== '') {
+            $selector->setSelector($selectorString);
+        }
 
         if (isset($matches[2])) {
             $attribute = $matches[2];

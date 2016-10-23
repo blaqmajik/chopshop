@@ -8,7 +8,7 @@ use ChopShop\Selector\Parser\FormatParser;
  * Class FormatParserTest
  * @package ChopShop\Tests
  *
- * Based on the tests in npm package component/format-parser
+ * Based on the tests in npm package 'format-parser'
  */
 class FormatParserTest extends \PHPUnit_Framework_TestCase
 {
