@@ -2,7 +2,6 @@
 
 namespace ChopShop\Tests;
 
-use ChopShop\Exception\MalformedSelectorException;
 use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Parser\SelectorParser;
 
@@ -123,10 +122,11 @@ class SelectorParserTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @expectedException \ChopShop\Exception\MalformedSelectorException
+     */
     public function testMalformedSelectorShouldRaiseException()
     {
-        $this->expectException(MalformedSelectorException::class);
-
         SelectorParser::parse('@');
     }
 }
