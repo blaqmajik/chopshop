@@ -2,12 +2,16 @@
 
 namespace ChopShop;
 
+use ChopShop\Driver\DriverInterface;
+use ChopShop\Driver\Guzzle;
 use ChopShop\Exception\FilterIsNotCallableException;
+use ChopShop\Exception\MalformedSelectorException;
 use ChopShop\Exception\MoreThanOneMatchFoundException;
 use ChopShop\Exception\UndefinedFilterException;
 use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Selector;
 use ChopShop\Selector\Parser\SelectorParser;
+use GuzzleHttp\Psr7\Uri;
 use QueryPath\DOMQuery;
 
 /**
@@ -27,11 +31,30 @@ class Scraper
     protected $filters = [];
 
     /**
+     * @var DriverInterface|null
+     */
+    protected $driver;
+
+    /**
+     * @var string|null
+     */
+    protected $url;
+
+    /**
      * Scraper constructor.
      * @param array $options
-     * @throws FilterIsNotCallableException
+     * @throws FilterIsNotCallableException|\InvalidArgumentException
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
+    {
+        $this->resolveOptions($options);
+    }
+
+    /**
+     * @param array $options
+     * @throws FilterIsNotCallableException|\InvalidArgumentException
+     */
+    protected function resolveOptions(array $options = [])
     {
         if (array_key_exists('filters', $options)) {
             foreach ($options['filters'] as $name => $function) {
@@ -42,16 +65,31 @@ class Scraper
                 }
             }
         }
+
+        if (array_key_exists('driver', $options)) {
+            $driver = $options['driver'];
+
+            if ($driver instanceof DriverInterface) {
+                $this->driver = $driver;
+            } else {
+                throw new \InvalidArgumentException('The given driver does not implement the required interface.');
+            }
+        }
     }
 
     /**
-     * @param $html
+     * @param $source
      * @param string[] $selectorDefinitions
      * @return array
+     * @throws MoreThanOneMatchFoundException|UndefinedFilterException|MalformedSelectorException
      */
-    public function scrape($html, $selectorDefinitions = [])
+    public function scrape($source, array $selectorDefinitions = [])
     {
-        $this->parse($html);
+        if (filter_var($source, FILTER_VALIDATE_URL)) {
+            $this->parse($this->request($source));
+        } else {
+            $this->parse($source);
+        }
 
         $result = [];
 
@@ -75,7 +113,7 @@ class Scraper
     /**
      * @param Selector $selector
      * @return array|null|string
-     * @throws MoreThanOneMatchFoundException
+     * @throws MoreThanOneMatchFoundException|UndefinedFilterException
      */
     protected function select(Selector $selector)
     {
@@ -140,7 +178,13 @@ class Scraper
         if ($selector->targetIsText()) {
             return $node->text();
         } elseif ($selector->targetIsAttribute()) {
-            return $node->attr($selector->getAttribute());
+            $value = $node->attr($selector->getAttribute());
+
+            if ($this->url !== null && in_array($selector->getAttribute(), ['href', 'src'])) {
+                return (string) Uri::resolve(new Uri($this->url), new Uri($value));
+            } else {
+                return $value;
+            }
         } elseif ($selector->targetIsInnerHtml()) {
             return trim($node->innerHTML5());
         }
@@ -152,7 +196,7 @@ class Scraper
      * @return string|array
      * @throws UndefinedFilterException
      */
-    protected function applyFilters($subject, $filters = [])
+    protected function applyFilters($subject, array $filters = [])
     {
         foreach ($filters as $filter) {
             if (array_key_exists($filter->getName(), $this->filters)) {
@@ -175,5 +219,20 @@ class Scraper
         }
 
         return $subject;
+    }
+
+    /**
+     * @param $url
+     * @return string
+     */
+    protected function request($url)
+    {
+        if ($this->driver === null) {
+            $this->driver = new Guzzle();
+        }
+
+        $this->url = $url;
+
+        return $this->driver->get($url);
     }
 }
