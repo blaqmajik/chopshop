@@ -36,6 +36,36 @@ class SelectorParserTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testParseMultipleElementSelectors()
+    {
+        foreach ($this->selectors as $selectorString) {
+            $selector = SelectorParser::parse([$selectorString]);
+
+            $this->assertEquals($selectorString, $selector->getSelector());
+            $this->assertTrue($selector->targetIsText());
+            $this->assertNull($selector->getAttribute());
+            $this->assertTrue($selector->isMultiple());
+            $this->assertFalse($selector->hasChildren());
+        }
+    }
+
+    public function testParseMultipleElementSelectorWithChildren()
+    {
+        $selector =
+            [
+                'div.something' =>
+                    [
+                        'first' => 'h2',
+                        'second' => 'h3'
+                    ]
+            ];
+
+        $parsedSelector = SelectorParser::parse($selector);
+
+        $this->assertTrue($parsedSelector->isMultiple());
+        $this->assertTrue($parsedSelector->hasChildren());
+    }
+
     public function testParseElementAndAttributeSelectors()
     {
         foreach ($this->selectors as $selectorString) {
