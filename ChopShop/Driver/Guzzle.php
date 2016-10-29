@@ -12,6 +12,16 @@ class Guzzle implements DriverInterface
     protected $client;
 
     /**
+     * @var int
+     */
+    protected $delay = 0;
+
+    /**
+     * @var int
+     */
+    protected $numberOfRequests = 0;
+
+    /**
      * Guzzle constructor.
      * @param array $options
      */
@@ -27,8 +37,21 @@ class Guzzle implements DriverInterface
      */
     public function get($url)
     {
-        $response = $this->client->get($url);
+        if ($this->numberOfRequests > 0 && $this->delay > 0) {
+            usleep($this->delay * 1000);
+        }
 
+        $response = $this->client->get($url);
+        $this->numberOfRequests++;
+        
         return $response->getBody()->getContents();
+    }
+
+    /**
+     * @param int $delay
+     */
+    public function setDelay($delay)
+    {
+        $this->delay = $delay;
     }
 }

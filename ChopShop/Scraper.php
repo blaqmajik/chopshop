@@ -80,10 +80,12 @@ class Scraper
     /**
      * @param $source
      * @param string[] $selectorDefinitions
+     * @param string|null $paginate
+     * @param int|null $limit
      * @return array
-     * @throws MoreThanOneMatchFoundException|UndefinedFilterException|MalformedSelectorException
+     * @throws MalformedSelectorException|MoreThanOneMatchFoundException|UndefinedFilterException
      */
-    public function scrape($source, array $selectorDefinitions = [])
+    public function scrape($source, array $selectorDefinitions = [], $paginate = null, $limit = null)
     {
         if (filter_var($source, FILTER_VALIDATE_URL)) {
             $this->parse($this->request($source));
@@ -95,8 +97,24 @@ class Scraper
 
         foreach ($selectorDefinitions as $key => $definition) {
             $selector = SelectorParser::parse($definition);
-
             $result[$key] = $this->select($selector);
+        }
+
+        if ($paginate !== null) {
+            $numberOfPages = 1;
+
+            while ($limit === null || $numberOfPages < $limit) {
+                $linkToNextPage = $this->select(SelectorParser::parse($paginate));
+
+                if ($linkToNextPage === null) {
+                    break;
+                }
+
+                $nextPageResult = $this->scrape($linkToNextPage, $selectorDefinitions);
+
+                $result = array_merge_recursive($result, $nextPageResult);
+                $numberOfPages++;
+            }
         }
 
         return $result;
@@ -154,7 +172,6 @@ class Scraper
                     }
 
                     $result[] = $subResult;
-
                     array_pop($this->dom);
                 }
             } else {
