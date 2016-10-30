@@ -14,4 +14,7 @@ matrix:
   fast_finish: true
 
 before_script:
-  - composer install
+  - composer install --dev
+
+after_success:
+  - travis_retry php vendor/bin/coveralls
