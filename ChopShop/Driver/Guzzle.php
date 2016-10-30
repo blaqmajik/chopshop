@@ -3,6 +3,7 @@
 namespace ChopShop\Driver;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class Guzzle implements DriverInterface
 {
@@ -41,7 +42,16 @@ class Guzzle implements DriverInterface
             usleep($this->delay * 1000);
         }
 
-        $response = $this->client->get($url);
+        try {
+            $response = $this->client->get($url);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+
+            if ($response === null) {
+                throw $e;
+            }
+        }
+
         $this->numberOfRequests++;
 
         return $response->getBody()->getContents();
