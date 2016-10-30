@@ -5,6 +5,7 @@ namespace ChopShop;
 use ChopShop\Driver\DriverInterface;
 use ChopShop\Driver\Guzzle;
 use ChopShop\Exception\FilterIsNotCallableException;
+use ChopShop\Exception\InvalidDriverException;
 use ChopShop\Exception\MalformedSelectorException;
 use ChopShop\Exception\MoreThanOneMatchFoundException;
 use ChopShop\Exception\UndefinedFilterException;
@@ -71,8 +72,8 @@ class Scraper
 
             if ($driver instanceof DriverInterface) {
                 $this->driver = $driver;
-            } else {
-                throw new \InvalidArgumentException('The given driver does not implement the required interface.');
+            } elseif ($driver !== null) {
+                throw new InvalidDriverException('The given driver does not implement the required interface.');
             }
         }
     }

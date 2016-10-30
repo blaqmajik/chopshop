@@ -43,7 +43,7 @@ class Guzzle implements DriverInterface
 
         $response = $this->client->get($url);
         $this->numberOfRequests++;
-        
+
         return $response->getBody()->getContents();
     }
 

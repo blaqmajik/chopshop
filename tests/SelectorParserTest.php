@@ -20,7 +20,7 @@ class SelectorParserTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->selectors = require __DIR__ . '/Fixtures/selectors.php';
+        $this->selectors = json_decode(file_get_contents(__DIR__ . '/fixtures/selectors.json'), true);
     }
 
     public function testParseElementSelectors()
