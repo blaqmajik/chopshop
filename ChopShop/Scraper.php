@@ -13,7 +13,9 @@ use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Selector;
 use ChopShop\Selector\Parser\SelectorParser;
 use GuzzleHttp\Psr7\Uri;
+use Masterminds\HTML5;
 use QueryPath\DOMQuery;
+use Symfony\Component\CssSelector\CssSelectorConverter;
 
 /**
  * Class Scraper
@@ -22,7 +24,7 @@ use QueryPath\DOMQuery;
 class Scraper
 {
     /**
-     * @var DOMQuery[]
+     * @var \DOMDocument[]
      */
     protected $dom = [];
 
@@ -30,6 +32,16 @@ class Scraper
      * @var array
      */
     protected $filters = [];
+
+    /**
+     * @var HTML5
+     */
+    protected $htmlParser;
+
+    /**
+     * @var CssSelectorConverter
+     */
+    protected $cssSelectorConverter;
 
     /**
      * @var DriverInterface|null
@@ -48,6 +60,9 @@ class Scraper
      */
     public function __construct(array $options = [])
     {
+        $this->htmlParser = new HTML5(['disable_html_ns' => true]);
+        $this->cssSelectorConverter = new CssSelectorConverter();
+
         $this->resolveOptions($options);
     }
 
@@ -126,7 +141,7 @@ class Scraper
      */
     protected function parse($html)
     {
-        $this->dom[] = \QueryPath::withHTML5($html);
+        $this->dom[] = $this->htmlParser->loadHTML($html);
     }
 
     /**
@@ -136,10 +151,10 @@ class Scraper
      */
     protected function select(Selector $selector)
     {
-        /** @var DOMQuery $latestDom */
-        $latestDom = end($this->dom);
+        $xPath = new \DOMXPath(end($this->dom));
+        $selectorAsXPath = $this->cssSelectorConverter->toXPath($selector->getSelector());
 
-        $foundNodes = $latestDom->find($selector->getSelector());
+        $foundNodes = $xPath->query($selectorAsXPath);
 
         if ($foundNodes->length === 0) {
             if (!$selector->isMultiple()) {
@@ -157,7 +172,8 @@ class Scraper
                 );
             }
 
-            $node = $foundNodes;
+            /** @var \DOMElement $node */
+            $node = $foundNodes->item(0);
             $result = $this->selectTarget($node, $selector);
         } else {
             $result = [];
@@ -166,7 +182,9 @@ class Scraper
                 $subResult = [];
 
                 foreach ($foundNodes as $node) {
-                    $this->dom[] = $node;
+                    $nodeDocument = new \DOMDocument();
+                    $nodeDocument->appendChild($nodeDocument->importNode($node, true));
+                    $this->dom[] = $nodeDocument;
 
                     foreach ($selector->getChildren() as $key => $childSelector) {
                         $subResult[$key] = $this->select($childSelector);
@@ -176,7 +194,6 @@ class Scraper
                     array_pop($this->dom);
                 }
             } else {
-                /** @var DOMQuery $node */
                 foreach ($foundNodes as $node) {
                     $result[] = $this->selectTarget($node, $selector);
                 }
@@ -187,24 +204,30 @@ class Scraper
     }
 
     /**
-     * @param DOMQuery $node
+     * @param \DOMElement $node
      * @param Selector $selector
      * @return mixed|null|string
      */
-    protected function selectTarget(DOMQuery $node, Selector $selector)
+    protected function selectTarget(\DOMElement $node, Selector $selector)
     {
         if ($selector->targetIsText()) {
-            return $node->text();
+            return $node->textContent;
         } elseif ($selector->targetIsAttribute()) {
-            $value = $node->attr($selector->getAttribute());
+            $value = $node->getAttribute($selector->getAttribute());
 
-            if ($this->url !== null && in_array($selector->getAttribute(), ['href', 'src'])) {
+            if ($this->url !== null && in_array($selector->getAttribute(), ['href', 'src'], true)) {
                 return (string) Uri::resolve(new Uri($this->url), new Uri($value));
             } else {
                 return $value;
             }
         } elseif ($selector->targetIsInnerHtml()) {
-            return trim($node->innerHTML5());
+            $html = '';
+
+            foreach ($node->childNodes as $childNode) {
+                $html .= $node->ownerDocument->saveHTML($childNode);
+            }
+
+            return trim($html);
         }
     }
 

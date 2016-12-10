@@ -272,7 +272,7 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
 
         $selectors =
             [
-                'artist' => 'div.review:first ul.artist-list li.artist'
+                'artist' => 'div.review:first-child ul.artist-list li.artist'
             ];
 
         $scraper->scrape(self::BASE_URL . '/reviews', $selectors);

@@ -13,7 +13,8 @@
     ],
     "require": {
         "php": ">=5.5",
-        "querypath/querypath": "^3.0.5",
+        "symfony/css-selector": "^3.2",
+        "masterminds/html5": "^2.2",
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
