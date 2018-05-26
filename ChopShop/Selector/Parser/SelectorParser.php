@@ -19,6 +19,7 @@ class SelectorParser
     const REGEX_FILTERS = '/\s*\|(?!\=)\s*/';
 
     const ATTRIBUTE_NAME_INNER_HTML = 'html';
+    const ATTRIBUTE_NAME_OUTER_HTML = 'outerhtml';
 
     /**
      * @param string|array $definition
@@ -65,6 +66,8 @@ class SelectorParser
 
             if (strtolower($attribute) === self::ATTRIBUTE_NAME_INNER_HTML) {
                 $selector->setTarget(Selector::TARGET_INNER_HTML);
+            } elseif (strtolower($attribute) === self::ATTRIBUTE_NAME_OUTER_HTML) {
+                $selector->setTarget(Selector::TARGET_OUTER_HTML);
             } else {
                 $selector->setTarget(Selector::TARGET_ATTRIBUTE);
                 $selector->setAttribute($attribute);

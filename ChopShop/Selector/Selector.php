@@ -11,6 +11,7 @@ class Selector
     const TARGET_TEXT = 'text';
     const TARGET_ATTRIBUTE = 'attribute';
     const TARGET_INNER_HTML = 'innerHtml';
+    const TARGET_OUTER_HTML = 'outerHtml';
 
     /**
      * @var string
@@ -105,6 +106,14 @@ class Selector
         return $this->target === self::TARGET_INNER_HTML;
     }
 
+    /**
+     * @return bool
+     */
+    public function targetIsOuterHtml()
+    {
+        return $this->target === self::TARGET_OUTER_HTML;
+    }
+    
     /**
      * @return string
      */
