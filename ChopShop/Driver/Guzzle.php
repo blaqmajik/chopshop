@@ -2,8 +2,9 @@
 
 namespace ChopShop\Driver;
 
+use ChopShop\Exception\RequestException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 
 class Guzzle implements DriverInterface
 {
@@ -44,11 +45,15 @@ class Guzzle implements DriverInterface
 
         try {
             $response = $this->client->get($url);
-        } catch (RequestException $e) {
+        } catch (GuzzleRequestException $e) {
             $response = $e->getResponse();
 
             if ($response === null) {
-                throw $e;
+                throw new RequestException($e->getMessage());
+            } else {
+                throw new RequestException(
+                    sprintf('Error %d: %s', $response->getStatusCode(), $response->getReasonPhrase())
+                );
             }
         }
 
