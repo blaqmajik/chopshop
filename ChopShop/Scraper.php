@@ -14,7 +14,6 @@ use ChopShop\Selector\Selector;
 use ChopShop\Selector\Parser\SelectorParser;
 use GuzzleHttp\Psr7\Uri;
 use Masterminds\HTML5;
-use QueryPath\DOMQuery;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 
 /**
@@ -226,6 +225,10 @@ class Scraper
             foreach ($node->childNodes as $childNode) {
                 $html .= $node->ownerDocument->saveHTML($childNode);
             }
+
+            return trim($html);
+        } elseif ($selector->targetIsOuterHtml()) {
+            $html = $node->ownerDocument->saveHTML($node);
 
             return trim($html);
         }
