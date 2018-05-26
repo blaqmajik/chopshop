@@ -215,7 +215,18 @@ class Scraper
             $value = $node->getAttribute($selector->getAttribute());
 
             if ($this->url !== null && in_array($selector->getAttribute(), ['href', 'src'], true)) {
-                return (string) Uri::resolve(new Uri($this->url), new Uri($value));
+                $uri = new Uri($value);
+
+                if (Uri::isAbsolute($uri)) {
+                    return (string) $uri;
+                }
+
+                // prepend missing leading slash to relative paths, if neccessary
+                if (strpos($value, '/') !== 0) {
+                    $uri = new Uri('/' . $value);
+                }
+
+                return (string) Uri::resolve(new Uri($this->url), $uri);
             } else {
                 return $value;
             }
