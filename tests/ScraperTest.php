@@ -27,16 +27,16 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
 
         $filters =
             [
-                'asDateTime' => function($value) {
+                'asDateTime' => function ($value) {
                     return is_string($value) && strtotime($value) !== false ? new \DateTime($value) : $value;
                 },
-                'asFloat' => function($value) {
+                'asFloat' => function ($value) {
                     return (float) $value;
                 },
-                'trim' => function($value) {
+                'trim' => function ($value) {
                     return is_string($value) ? trim($value) : $value;
                 },
-                'withoutLeading' => function($value, $startString) {
+                'withoutLeading' => function ($value, $startString) {
                     return is_string($value) && strpos($value, $startString) === 0
                         ? substr($value, strlen($startString))
                         : $value;
@@ -139,11 +139,17 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
                                 [
                                     [
                                         'region' => 'US',
-                                        'releaseDate' => \DateTime::createFromFormat('Y-m-d H:i:s', '2016-01-01 00:00:00'),
+                                        'releaseDate' => \DateTime::createFromFormat(
+                                            'Y-m-d H:i:s',
+                                            '2016-01-01 00:00:00'
+                                        ),
                                     ],
                                     [
                                         'region' => 'UK',
-                                        'releaseDate' => \DateTime::createFromFormat('Y-m-d H:i:s', '2016-01-08 00:00:00'),
+                                        'releaseDate' => \DateTime::createFromFormat(
+                                            'Y-m-d H:i:s',
+                                            '2016-01-08 00:00:00'
+                                        ),
                                     ]
                                 ],
                             'notFound' => null,
@@ -219,9 +225,8 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
     public function testScraperWithPaginationAndLimit()
     {
         $driver = $this->getDriver(
-            [
-                new Response(200, [], file_get_contents(__DIR__ . '/fixtures/test.html'))
-            ]);
+            [new Response(200, [], file_get_contents(__DIR__ . '/fixtures/test.html'))]
+        );
 
         $scraper = $this->getScraper($driver);
 
@@ -249,10 +254,10 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
     {
         $scraper = $this->getScraper();
 
-        $result = $scraper->scrape(file_get_contents(__DIR__ . '/fixtures/test.html'),
-            [
-                'title' => 'h1'
-            ]);
+        $result = $scraper->scrape(
+            file_get_contents(__DIR__ . '/fixtures/test.html'),
+            ['title' => 'h1']
+        );
 
         $this->assertEquals($result['title'], 'ChopShop Test');
     }
@@ -285,10 +290,9 @@ class ScraperTest extends \PHPUnit_Framework_TestCase
     {
         $scraper = $this->getScraper();
 
-        $scraper->scrape('<p>Test</p>',
-            [
-                'text' => 'p | trim | nonExistingFilter'
-            ]
+        $scraper->scrape(
+            '<p>Test</p>',
+            ['text' => 'p | trim | nonExistingFilter']
         );
     }
 

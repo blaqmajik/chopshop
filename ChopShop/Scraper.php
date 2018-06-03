@@ -166,8 +166,11 @@ class Scraper
         if (!$selector->isMultiple()) {
             if ($foundNodes->length > 1) {
                 throw new MoreThanOneMatchFoundException(
-                    sprintf('One match expected but %d matches found for selector "%s".', $foundNodes->length,
-                        $selector->getSelector())
+                    sprintf(
+                        'One match expected but %d matches found for selector "%s".',
+                        $foundNodes->length,
+                        $selector->getSelector()
+                    )
                 );
             }
 
