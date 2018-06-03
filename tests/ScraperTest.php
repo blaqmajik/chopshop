@@ -8,12 +8,13 @@ use ChopShop\Scraper;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ScraperTest
  * @package ChopShop\Tests
  */
-class ScraperTest extends \PHPUnit_Framework_TestCase
+class ScraperTest extends TestCase
 {
     const BASE_URL = 'http://example.com';
 

@@ -3,6 +3,7 @@
 namespace ChopShop\Tests;
 
 use ChopShop\Selector\Parser\FormatParser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class FormatParserTest
@@ -10,7 +11,7 @@ use ChopShop\Selector\Parser\FormatParser;
  *
  * Based on the tests in npm package 'format-parser'
  */
-class FormatParserTest extends \PHPUnit_Framework_TestCase
+class FormatParserTest extends TestCase
 {
     public function testParseSingleFormatWithoutArguments()
     {

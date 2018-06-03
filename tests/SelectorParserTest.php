@@ -4,6 +4,7 @@ namespace ChopShop\Tests;
 
 use ChopShop\Selector\FilterFunctionCall;
 use ChopShop\Selector\Parser\SelectorParser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class SelectorParserTest
@@ -11,7 +12,7 @@ use ChopShop\Selector\Parser\SelectorParser;
  *
  * Based on the tests in npm package 'x-ray-parse'
  */
-class SelectorParserTest extends \PHPUnit_Framework_TestCase
+class SelectorParserTest extends TestCase
 {
     /**
      * @var array
