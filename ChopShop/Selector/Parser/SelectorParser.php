@@ -15,7 +15,7 @@ use ChopShop\Selector\Selector;
 class SelectorParser
 {
     // blatantly stolen from x-ray-parse
-    const REGEX_SELECTOR = '/^([^@]*)(?:@\s*([\w-_:]+))?$/';
+    const REGEX_SELECTOR = '/^([^@]*)(?:@\s*([\w\-_:]+))?$/';
     const REGEX_FILTERS = '/\s*\|(?!\=)\s*/';
 
     const ATTRIBUTE_NAME_INNER_HTML = 'html';
